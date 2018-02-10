@@ -10,9 +10,8 @@ import android.util.Log;
 import java.util.HashMap;
 
 /**
- * Created by franc on 03/02/2018.
+ *  DB HELPER
  */
-
 public class SQLiteHandler extends SQLiteOpenHelper {
 
     private static final String TAG = SQLiteHandler.class.getSimpleName();
@@ -26,13 +25,19 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     // Login table name
     private static final String TABLE_USER = "user";
+    private static final String TABLE_MSG = "msg";
+
 
     // Login Table Columns names
     private static final String KEY_ID = "id";
+    private static final String KEY_ID_USER = "id_msg";
+
     private static final String KEY_NAME = "name";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_UID = "uid";
     private static final String KEY_CREATED_AT = "created_at";
+    private static final String KEY_MSG = "msg";
+
 
     public SQLiteHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,6 +51,10 @@ public class SQLiteHandler extends SQLiteOpenHelper {
                 + KEY_EMAIL + " TEXT UNIQUE," + KEY_UID + " TEXT,"
                 + KEY_CREATED_AT + " TEXT" + ")";
         db.execSQL(CREATE_LOGIN_TABLE);
+        String CREATE_MSG_TABLE = "CREATE TABLE " + TABLE_MSG + "("
+                + KEY_ID_USER + " INTEGER PRIMARY KEY," + KEY_MSG + " TEXT,"
+                + KEY_CREATED_AT + " TEXT" + ")";
+        db.execSQL(CREATE_MSG_TABLE);
 
         Log.d(TAG, "Database tables created");
     }
@@ -61,8 +70,12 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     }
 
     /**
-     * Storing user details in database
-     * */
+     *
+     * @param name User name
+     * @param email User Email
+     * @param uid User id
+     * @param created_at Creation Datetime
+     */
     public void addUser(String name, String email, String uid, String created_at) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -79,9 +92,34 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         Log.d(TAG, "New user inserted into sqlite: " + id);
     }
 
+
     /**
-     * Getting user data from database
-     * */
+     *
+     * ADDING INTO LOCAL SQLITE
+     *
+      * @param userID destination ID
+     * @param msg message body
+     * @param created_at time of creation
+     */
+    public void addMsg(String userID, String msg, String created_at) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_ID_USER, userID);
+        values.put(KEY_MSG, msg);
+        values.put(KEY_CREATED_AT, created_at);
+
+        // Inserting Row
+        long id = db.insert(TABLE_MSG, null, values);
+        db.close(); // Closing database connection
+
+        Log.d(TAG, "New msg inserted into sqlite: " + id);
+    }
+
+    /**
+     *
+     * @return
+     */
     public HashMap<String, String> getUserDetails() {
         HashMap<String, String> user = new HashMap<String, String>();
         String selectQuery = "SELECT  * FROM " + TABLE_USER;
@@ -106,6 +144,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     /**
      * Re crate database Delete all tables and create them again
+     *
+     * TODO DELETES USER IN DB?
      * */
     public void deleteUsers() {
         SQLiteDatabase db = this.getWritableDatabase();

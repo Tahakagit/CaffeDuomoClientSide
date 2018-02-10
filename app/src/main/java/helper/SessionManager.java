@@ -5,9 +5,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 /**
- * Created by franc on 03/02/2018.
+ *  MANAGES USER LOGGED SESSION
  */
-
 public class SessionManager {
     // LogCat tag
     private static String TAG = SessionManager.class.getSimpleName();

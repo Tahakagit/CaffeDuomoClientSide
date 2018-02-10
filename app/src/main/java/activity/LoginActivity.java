@@ -103,6 +103,7 @@ public class LoginActivity extends Activity {
 
     }
 
+
     /**
      * function to verify login details in mysql db
      * */
@@ -130,9 +131,11 @@ public class LoginActivity extends Activity {
                         // Create login session
                         session.setLogin(true);
 
+                        //TODO STORE USER DATA TO SHARED PREFS
                         // Now store the user in SQLite
                         String uid = jObj.getString("uid");
 
+                        //TODO REMOVE LOCA DB
                         JSONObject user = jObj.getJSONObject("user");
                         String name = user.getString("name");
                         String email = user.getString("email");
@@ -180,7 +183,7 @@ public class LoginActivity extends Activity {
 
         };
 
-        // Adding request to request queue
+        // Adding request to volley request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 

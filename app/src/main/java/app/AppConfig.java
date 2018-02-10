@@ -10,4 +10,8 @@ public class AppConfig {
 
     // Server user register url
     public static String URL_REGISTER = "http://192.168.1.155/CaffeDuomoServerSide/register.php";
+
+    // Server user register url
+    public static String URL_SENDMSG = "http://192.168.1.155/CaffeDuomoServerSide/sendmsg.php";
+
 }

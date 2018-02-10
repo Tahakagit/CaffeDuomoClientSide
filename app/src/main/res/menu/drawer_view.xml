@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_messages"
+            android:title="Chi siamo" />
+        <item
+            android:id="@+id/nav_friends"
+            android:title="Contatti" />
+    </group>
+
+    <item android:title="Categorie">
+        <menu>
+            <item
+                android:title="Crea conto"
+                android:id="@+id/action_category_1"/>
+            <item
+                android:title="Green"
+                android:id="@+id/action_category_2"/>
+            <item
+                android:title="Tech"
+                android:id="@+id/action_category_3"/>
+        </menu>
+    </item>
+
+</menu>
