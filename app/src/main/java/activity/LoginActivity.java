@@ -64,7 +64,7 @@ public class LoginActivity extends Activity {
         // Check if user is already logged in or not
         if (session.isLoggedIn()) {
             // User is already logged in. Take him to main activity
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            Intent intent = new Intent(LoginActivity.this, InboxActivity.class);
             startActivity(intent);
             finish();
         }
@@ -141,11 +141,14 @@ public class LoginActivity extends Activity {
                         String email = user.getString("email");
                         String created_at = user.getString("created_at");
 
+                        session.setUserDetails(uid, name, email);
                         // Inserting row in users table
+/*
                         db.addUser(name, email, uid, created_at);
+*/
 
                         // Launch main activity
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        Intent intent = new Intent(LoginActivity.this, InboxActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
@@ -165,8 +168,7 @@ public class LoginActivity extends Activity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                 hideDialog();
             }
         }) {

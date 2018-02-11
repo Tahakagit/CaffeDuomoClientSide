@@ -31,6 +31,18 @@ public class SessionManager {
         editor = pref.edit();
     }
 
+    public void setUserDetails(String userId, String username, String email){
+        editor.putString("username", username);
+        editor.putString("userId", userId);
+        editor.putString("email", email);
+        editor.commit();
+
+    }
+    public String getLoggedID(){
+        String id = pref.getString("userId", "NO LOGGED ID!");
+        return id;
+    }
+
     public void setLogin(boolean isLoggedIn) {
 
         editor.putBoolean(KEY_IS_LOGGEDIN, isLoggedIn);

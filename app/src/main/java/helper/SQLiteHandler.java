@@ -28,7 +28,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     private static final String TABLE_MSG = "msg";
 
 
-    // Login Table Columns names
+    // Login Table Columns ids
     private static final String KEY_ID = "id";
     private static final String KEY_ID_USER = "id_msg";
 

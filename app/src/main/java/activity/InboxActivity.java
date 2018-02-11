@@ -6,9 +6,14 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,10 +27,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import app.AppConfig;
 import app.AppController;
+import helper.JSONParse;
+import helper.Messages;
+import helper.MyInboxAdapter;
 import helper.SQLiteHandler;
 import helper.SessionManager;
 
@@ -40,6 +49,8 @@ public class InboxActivity extends AppCompatActivity {
     private SQLiteHandler db;
     private SessionManager session;
     private static final String TAG = RegisterActivity.class.getSimpleName();
+    static MyInboxAdapter inboxAdapter;
+    static List<Messages> listOfMessages;
 
 
     @Override
@@ -52,12 +63,23 @@ public class InboxActivity extends AppCompatActivity {
 
         TextView txtName = (TextView) findViewById(R.id.name);
         TextView txtEmail = (TextView) findViewById(R.id.email);
-        Button btnLogout = (Button) findViewById(R.id.btnLogout);
+        Button btnLogout = (Button) findViewById(R.id.id_logout_btn);
 
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logoutUser();
+            }
+        });
+/*
+        startInboxRecyclerView();
+*/
         startNavDrawer();
 
         // SqLite database handler
+/*
         db = new SQLiteHandler(getApplicationContext());
+*/
 
         // session manager
         session = new SessionManager(getApplicationContext());
@@ -66,10 +88,8 @@ public class InboxActivity extends AppCompatActivity {
             logoutUser();
         }
 
+        startInputForm();
         // TODO GET CURRENTLY LOGGED USER INFORMATION FROM SHARED PREFERENCES
-        // TODO GET SEND MESSAGE FORM FROM ACTIVITY_INBOX.XML
-        // TODO SET ONCLICK LISTENER WHICH CALLS SENDMSG(USERID, MESSAGE)
-        // TODO RESET FORM FIELDS
 
     }
 
@@ -111,6 +131,30 @@ public class InboxActivity extends AppCompatActivity {
 
     }
 
+    public void startInputForm(){
+
+        final EditText idText = findViewById(R.id.id_send_message_id);
+        final EditText msgText = findViewById(R.id.id_send_message_msg);
+        Button sendMsgButton = findViewById(R.id.id_send_message_button);
+
+        getMyMessages();
+        sendMsgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMsg(idText.getText().toString(), msgText.getText().toString());
+                idText.setText("");
+                msgText.setText("");
+            }
+        });
+
+    }
+
+    private void getMyMessages(){
+        String id = session.getLoggedID();
+        Log.d(TAG, "Logged ID  " + id);
+        // todo create volley GET to retrievemsgbyid.php
+        // todo pass id to volley
+    }
     private void sendMsg(final String userId, final String msg){
         // Tag used to cancel the request
         String tag_string_req = "req_login";
@@ -123,7 +167,7 @@ public class InboxActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Login Response: " + response.toString());
+                Log.d(TAG, "Message send response: " + response.toString());
                 hideDialog();
 
                 try {
@@ -132,21 +176,20 @@ public class InboxActivity extends AppCompatActivity {
 
                     // Check for error node in json
                     if (!error) {
-                        String uid = jObj.getString("uid");
-                        // todo sistemare qua SHARED PREFERENCES
-                        JSONObject user = jObj.getJSONObject("jmsg");
-                        String id = user.getString("id");
-                        String msg = user.getString("msg");
-                        String created_at = user.getString("created_at");
-
-                        db.addMsg(id, msg, created_at);
-
-                        // Launch main activity
 /*
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                        JSONObject messages = jObj.getJSONObject("apps");
 */
+
+                        // todo sistemare qua SHARED PREFERENCES
+                        JSONParse pj = new JSONParse();
+                        pj.ParseJSON(response);
+                        listOfMessages = pj.getMessaggi();
+                        inboxAdapter.notifyDataSetChanged();
+
+                        Toast.makeText(getApplicationContext(), "Messaggio Inviato!", Toast.LENGTH_LONG).show();
+
+
+
                     } else {
                         // Error in login. Get the error message
                         String errorMsg = jObj.getString("error_msg");
@@ -164,8 +207,7 @@ public class InboxActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                 hideDialog();
             }
         }) {
@@ -187,6 +229,17 @@ public class InboxActivity extends AppCompatActivity {
 
     }
 
+    // START LOCATIONS RECYCLERVIEW
+    public void startInboxRecyclerView(){
+        inboxAdapter = new MyInboxAdapter(listOfMessages);
+        RecyclerView list;
+        list = (RecyclerView)findViewById(R.id.id_rv_inbox);
+        list.setLayoutManager(new LinearLayoutManager(this));
+        list.setAdapter(inboxAdapter);
+
+    }
+
+
     private void hideDialog() {
         if (pDialog.isShowing())
             pDialog.dismiss();
@@ -205,7 +258,9 @@ public class InboxActivity extends AppCompatActivity {
     private void logoutUser() {
         session.setLogin(false);
 
+/*
         db.deleteUsers();
+*/
 
         // Launching the login activity
         Intent intent = new Intent(InboxActivity.this, LoginActivity.class);

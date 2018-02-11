@@ -10,11 +10,35 @@
         android:layout_width="match_parent"
         android:orientation="vertical">
 
-        <Text
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_send_message_id"
+            android:id="@id/id_send_message_id"
+            android:inputType="number"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_send_message_msg"
+            android:id="@id/id_send_message_msg"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_send_message"
+            android:id="@id/id_send_message_button"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_logout"
+            android:id="@+id/id_logout_btn"
+            />
+
+
         <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/navigation_rv_enemies">
+            android:id="@+id/id_rv_inbox">
         </android.support.v7.widget.RecyclerView>
 
     </LinearLayout>
