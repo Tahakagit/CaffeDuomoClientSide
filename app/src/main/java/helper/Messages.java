@@ -10,6 +10,12 @@ public class Messages {
     private String message;
     private String created;
 
+    public Messages(String userId, String message, String created) {
+        this.userId = userId;
+        this.message = message;
+        this.created = created;
+    }
+
     public String getCreated() {
         return created;
     }

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import app.AppConfig;
 import app.AppController;
-import helper.SQLiteHandler;
 import helper.SessionManager;
 
 /**
@@ -40,7 +39,6 @@ public class RegisterActivity extends Activity {
     private EditText inputPassword;
     private ProgressDialog pDialog;
     private SessionManager session;
-    private SQLiteHandler db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,9 +57,6 @@ public class RegisterActivity extends Activity {
 
         // Session manager
         session = new SessionManager(getApplicationContext());
-
-        // SQLite database handler
-        db = new SQLiteHandler(getApplicationContext());
 
         // Check if user is already logged in or not
         if (session.isLoggedIn()) {
@@ -105,8 +100,7 @@ public class RegisterActivity extends Activity {
      * Function to store user in MySQL database will post params(tag, name,
      * email, password) to register url
      * */
-    private void registerUser(final String name, final String email,
-                              final String password) {
+    private void registerUser(final String name, final String email, final String password) {
         // Tag used to cancel the request
         String tag_string_req = "req_register";
 
@@ -133,8 +127,6 @@ public class RegisterActivity extends Activity {
                         String email = user.getString("email");
                         String created_at = user.getString("created_at");
 
-                        // Inserting row in users table
-                        db.addUser(name, email, uid, created_at);
 
                         Toast.makeText(getApplicationContext(), "User successfully registered. Try login now!", Toast.LENGTH_LONG).show();
 

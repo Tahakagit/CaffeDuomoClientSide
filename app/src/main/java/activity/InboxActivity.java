@@ -21,21 +21,22 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.franc.caffduomo.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import app.AppConfig;
 import app.AppController;
-import helper.JSONParse;
 import helper.Messages;
 import helper.MyInboxAdapter;
-import helper.SQLiteHandler;
 import helper.SessionManager;
 
 /**
@@ -46,9 +47,7 @@ public class InboxActivity extends AppCompatActivity {
     ProgressDialog pDialog;
 
 
-    private SQLiteHandler db;
     private SessionManager session;
-    private static final String TAG = RegisterActivity.class.getSimpleName();
     static MyInboxAdapter inboxAdapter;
     static List<Messages> listOfMessages;
 
@@ -89,7 +88,11 @@ public class InboxActivity extends AppCompatActivity {
         }
 
         startInputForm();
-        // TODO GET CURRENTLY LOGGED USER INFORMATION FROM SHARED PREFERENCES
+        getMyMessages(session.getLoggedID());
+/*
+        startInboxRecyclerView(getMyMessages(session.getLoggedID()));
+*/
+
 
     }
 
@@ -137,7 +140,6 @@ public class InboxActivity extends AppCompatActivity {
         final EditText msgText = findViewById(R.id.id_send_message_msg);
         Button sendMsgButton = findViewById(R.id.id_send_message_button);
 
-        getMyMessages();
         sendMsgButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,15 +151,88 @@ public class InboxActivity extends AppCompatActivity {
 
     }
 
-    private void getMyMessages(){
+    /**
+     * Get all messages FROM messages where id_user ==  session.getLoggedId()
+     * @param userId session.getLoggedID()
+     */
+    private void getMyMessages(final String userId){
         String id = session.getLoggedID();
-        Log.d(TAG, "Logged ID  " + id);
-        // todo create volley GET to retrievemsgbyid.php
-        // todo pass id to volley
+        Log.d(this.getClass().getName(), "Logged ID  " + id);
+        String tag_request = "req_send_msg";
+
+        pDialog.setMessage("Caricamento messaggi ...");
+        showDialog();
+
+
+        listOfMessages = new ArrayList<>();
+        // todo complete retrievemsdgbyid.php in eclipse
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, AppConfig.URL_RETRIEVE_MSG,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(this.getClass().getName(), "Message send response: " + response.toString());
+                        hideDialog();
+
+                        try {
+                            //converting the string to json array object
+                            JSONArray array = new JSONArray(response);
+
+                            //traversing through all the object
+                            for (int i = 0; i < array.length(); i++) {
+
+                                //getting product object from json array
+                                JSONObject product = array.getJSONObject(i);
+
+                                //adding the product to product list
+                                listOfMessages.add(new Messages(
+                                        product.getString("id"),
+                                        product.getString("message"),
+                                        product.getString("date")
+                                ));
+                            }
+
+                            //creating adapter object and setting it to recyclerview
+/*
+                            MyInboxAdapter adapter = new MyInboxAdapter(MainActivity.this, productList);
+*/
+                            startInboxRecyclerView(listOfMessages);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+
+                }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting parameters to login url
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("idUser", userId);
+                return params;
+            }
+
+        };
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequest);
     }
+
+    /**
+     * Send message to remote mysql server
+     * @param userId Recipient id todo will be ussername
+     * @param msg Message body
+     */
     private void sendMsg(final String userId, final String msg){
         // Tag used to cancel the request
-        String tag_string_req = "req_login";
+        String tag_send_msg_request = "req_send_msg";
 
 
         pDialog.setMessage("Invio Messaggio ...");
@@ -167,7 +242,7 @@ public class InboxActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Message send response: " + response.toString());
+                Log.d(this.getClass().getName(), "Message send response: " + response.toString());
                 hideDialog();
 
                 try {
@@ -176,16 +251,6 @@ public class InboxActivity extends AppCompatActivity {
 
                     // Check for error node in json
                     if (!error) {
-/*
-                        JSONObject messages = jObj.getJSONObject("apps");
-*/
-
-                        // todo sistemare qua SHARED PREFERENCES
-                        JSONParse pj = new JSONParse();
-                        pj.ParseJSON(response);
-                        listOfMessages = pj.getMessaggi();
-                        inboxAdapter.notifyDataSetChanged();
-
                         Toast.makeText(getApplicationContext(), "Messaggio Inviato!", Toast.LENGTH_LONG).show();
 
 
@@ -206,7 +271,7 @@ public class InboxActivity extends AppCompatActivity {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, "Login Error: " + error.getMessage());
+                Log.e(this.getClass().getName(), "Login Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
                 hideDialog();
             }
@@ -225,13 +290,13 @@ public class InboxActivity extends AppCompatActivity {
         };
 
         // Adding request to volley request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        AppController.getInstance().addToRequestQueue(strReq, tag_send_msg_request);
 
     }
 
     // START LOCATIONS RECYCLERVIEW
-    public void startInboxRecyclerView(){
-        inboxAdapter = new MyInboxAdapter(listOfMessages);
+    public void startInboxRecyclerView(List<Messages> messages){
+        inboxAdapter = new MyInboxAdapter(messages);
         RecyclerView list;
         list = (RecyclerView)findViewById(R.id.id_rv_inbox);
         list.setLayoutManager(new LinearLayoutManager(this));

@@ -24,7 +24,6 @@ import java.util.Map;
 
 import app.AppConfig;
 import app.AppController;
-import helper.SQLiteHandler;
 import helper.SessionManager;
 
 /**
@@ -39,7 +38,6 @@ public class LoginActivity extends Activity {
     private EditText inputPassword;
     private ProgressDialog pDialog;
     private SessionManager session;
-    private SQLiteHandler db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,9 +52,6 @@ public class LoginActivity extends Activity {
         // Progress dialog
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
-
-        // SQLite database handler
-        db = new SQLiteHandler(getApplicationContext());
 
         // Session manager
         session = new SessionManager(getApplicationContext());
@@ -131,11 +126,8 @@ public class LoginActivity extends Activity {
                         // Create login session
                         session.setLogin(true);
 
-                        //TODO STORE USER DATA TO SHARED PREFS
-                        // Now store the user in SQLite
                         String uid = jObj.getString("uid");
 
-                        //TODO REMOVE LOCA DB
                         JSONObject user = jObj.getJSONObject("user");
                         String name = user.getString("name");
                         String email = user.getString("email");

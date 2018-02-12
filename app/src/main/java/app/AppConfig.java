@@ -11,7 +11,11 @@ public class AppConfig {
     // Server user register url
     public static String URL_REGISTER = "http://192.168.1.155/CaffeDuomoServerSide/register.php";
 
-    // Server user register url
+    // Server send message url
     public static String URL_SENDMSG = "http://192.168.1.155/CaffeDuomoServerSide/sendmsg.php";
+
+    // Server retrieve my msg url
+    public static String URL_RETRIEVE_MSG = "http://192.168.1.155/CaffeDuomoServerSide/retrievemsgbyid.php";
+
 
 }

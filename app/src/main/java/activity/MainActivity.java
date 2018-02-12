@@ -11,16 +11,14 @@ import com.example.franc.caffduomo.R;
 
 import java.util.HashMap;
 
-import helper.SQLiteHandler;
 import helper.SessionManager;
 
 /**
- * Created by franc on 03/02/2018.
- */
+ * UNUSED ACTIVITY
+ * */
 
 public class MainActivity extends Activity {
 
-    private SQLiteHandler db;
     private SessionManager session;
 
     @Override
@@ -32,8 +30,6 @@ public class MainActivity extends Activity {
         TextView txtEmail = (TextView) findViewById(R.id.email);
         Button btnLogout = (Button) findViewById(R.id.btnLogout);
 
-        // SqLite database handler
-        db = new SQLiteHandler(getApplicationContext());
 
         // session manager
         session = new SessionManager(getApplicationContext());
@@ -42,16 +38,7 @@ public class MainActivity extends Activity {
             logoutUser();
         }
 
-        // Fetching user details from sqlite
-        HashMap<String, String> user = db.getUserDetails();
 
-        //TODO CURRENTLY GET LOGGED USER INFORMATION FROM LOCAL SQLITE WHAT ABOUT SHARED PREFERENCES?
-        String name = user.get("name");
-        String email = user.get("email");
-
-        // Displaying the user details on the screen
-        txtName.setText(name);
-        txtEmail.setText(email);
 
         // Logout button click event
         btnLogout.setOnClickListener(new View.OnClickListener() {
@@ -69,8 +56,6 @@ public class MainActivity extends Activity {
      * */
     private void logoutUser() {
         session.setLogin(false);
-
-        db.deleteUsers();
 
         // Launching the login activity
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
